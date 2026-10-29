@@ -1,0 +1,815 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>AI Word Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+
+<script>
+/* =====================================================================
+   TERM DATA
+   Add new terms to the right level. Each entry needs:
+     term        – the word or phrase
+     definition  – plain English, 1–2 sentences, no jargon.
+                   Don't use the term itself in its definition.
+     example     – one short everyday example or analogy
+   Each level needs at least 4 terms. A quiz uses up to 10 of them.
+   ===================================================================== */
+const TERMS = {
+  beginner: [
+    {
+      term: "Artificial Intelligence (AI)",
+      definition: "Computer systems that can do tasks that usually need human thinking, like understanding language or recognizing faces.",
+      example: "Your phone suggesting the next word as you type is a small everyday use of it."
+    },
+    {
+      term: "Algorithm",
+      definition: "A set of step-by-step instructions a computer follows to solve a problem or finish a task.",
+      example: "A recipe is like this: follow the steps in order and you get a cake."
+    },
+    {
+      term: "Machine Learning",
+      definition: "A way of building computer programs that improve by studying examples instead of being told every rule.",
+      example: "An email app learns what spam looks like after seeing thousands of junk emails."
+    },
+    {
+      term: "Data",
+      definition: "Facts, numbers, words, pictures, or recordings that a computer can store and use.",
+      example: "Your step count, your playlists, and your photos are all this."
+    },
+    {
+      term: "Training",
+      definition: "The process of showing an AI system lots of examples so it can learn patterns from them.",
+      example: "Like a new employee shadowing a coworker for weeks before working alone."
+    },
+    {
+      term: "Model",
+      definition: "The finished result of AI learning: a program that has picked up patterns and can now make guesses about new things.",
+      example: "A weather app's forecasting brain, built from years of past weather, is one of these."
+    },
+    {
+      term: "Prompt",
+      definition: "The question or instruction you type to tell an AI tool what you want.",
+      example: "\"Write a birthday message for my grandma\" is one you might give a chatbot."
+    },
+    {
+      term: "Chatbot",
+      definition: "A computer program you can talk to by typing or speaking, which answers like a person would in a conversation.",
+      example: "The help window that pops up on a store's website to answer your order questions."
+    },
+    {
+      term: "Generative AI",
+      definition: "AI that creates new content, such as text, images, music, or video, instead of only sorting or labeling things.",
+      example: "Asking a tool to draw \"a cat riding a bike\" and getting a brand-new picture."
+    },
+    {
+      term: "Hallucination",
+      definition: "When an AI states something false or made-up as if it were true.",
+      example: "A chatbot confidently naming a book that was never actually written."
+    },
+    {
+      term: "API (Application Programming Interface)",
+      definition: "A way for one piece of software to request information or actions from another automatically, without a person clicking anything.",
+      example: "A weather app gets today's forecast by asking a weather service's system behind the scenes."
+    },
+    {
+      term: "SaaS (Software as a Service)",
+      definition: "Software you use online and pay for by subscription, instead of buying and installing it once.",
+      example: "Paying monthly for a design tool you open in your web browser."
+    },
+    {
+      term: "AI Agent",
+      definition: "An AI that works through a multi-step task on its own to reach a goal, instead of only answering one message at a time.",
+      example: "You say \"book me a table for four on Friday\" and it checks restaurants, picks a time, and reserves it."
+    },
+    {
+      term: "Automation",
+      definition: "A fixed set of steps that a computer repeats for you every time, without needing to think or decide.",
+      example: "Every invoice email gets saved to the same folder automatically."
+    },
+    {
+      term: "Vibe Coding",
+      definition: "Building software by describing what you want in plain language and letting an AI write the code.",
+      example: "Typing \"make me a quiz app with three levels\" and getting a working app back."
+    },
+    {
+      term: "No-code",
+      definition: "Tools that let you build apps or websites by dragging, dropping, and clicking instead of writing programming code.",
+      example: "Building a sign-up form for your club by arranging boxes on a screen."
+    },
+    {
+      term: "MRR (Monthly Recurring Revenue)",
+      definition: "The predictable income a subscription business earns every month from its paying customers.",
+      example: "100 customers each paying $10 a month means $1,000 of it."
+    },
+    {
+      term: "Prompt Engineering",
+      definition: "The skill of wording your instructions to an AI carefully so it gives you more useful results.",
+      example: "Instead of \"write an email,\" saying \"write a friendly 3-sentence email declining a meeting.\""
+    },
+    {
+      term: "Agentic AI",
+      definition: "AI built to plan and take actions toward a goal on its own, rather than just replying to messages.",
+      example: "Like the difference between a phone that answers questions and an assistant who runs errands."
+    },
+    {
+      term: "AGI (Artificial General Intelligence)",
+      definition: "A hoped-for future AI that could handle most thinking tasks as well as or better than a person. Experts disagree on its exact meaning.",
+      example: "Today's AI might ace chess or writing; this would be good at nearly everything at once."
+    },
+    {
+      term: "Multimodal",
+      definition: "Describes AI that can understand or create more than one kind of content, such as text, images, and sound.",
+      example: "Snapping a photo of your fridge and asking out loud what you can cook for dinner."
+    },
+    {
+      term: "Reasoning Model",
+      definition: "An AI that works through a problem in steps before giving its answer, which is slower but often more accurate.",
+      example: "Like a student who shows their work on a math problem instead of guessing the answer."
+    },
+    {
+      term: "Deepfake",
+      definition: "A fake but realistic-looking video, image, or audio clip made with AI, often showing a real person doing something they never did.",
+      example: "A video of a celebrity \"saying\" words they never actually said."
+    },
+    {
+      term: "Text-to-Image",
+      definition: "AI that creates a brand-new picture from a written description.",
+      example: "Typing \"a lighthouse at sunset in watercolor\" and getting that painting."
+    },
+    {
+      term: "Speech-to-Text",
+      definition: "AI that listens to spoken words and turns them into written text.",
+      example: "Your phone typing out a message as you talk into it."
+    },
+    {
+      term: "AI Assistant",
+      definition: "An AI helper built into an app or device that helps you get everyday tasks done by talking or typing to it.",
+      example: "Asking the helper inside your email app to summarize a long thread."
+    },
+    {
+      term: "Open Source",
+      definition: "Software whose inner code is shared publicly so anyone can use, study, or change it.",
+      example: "Like a recipe printed in a public cookbook instead of kept secret by a restaurant."
+    },
+    {
+      term: "GPU (Graphics Processing Unit)",
+      definition: "A computer chip that can do huge numbers of calculations at the same time, which makes it the main hardware for running AI.",
+      example: "Originally made for video games, now the engine inside AI data centers."
+    }
+  ],
+
+  intermediate: [
+    {
+      term: "Large Language Model (LLM)",
+      definition: "An AI system that has read a huge amount of text and can write, summarize, and answer questions in everyday language.",
+      example: "The engine behind popular AI chat assistants is one of these."
+    },
+    {
+      term: "Neural Network",
+      definition: "A computer system made of many small connected parts that pass signals to each other, loosely inspired by the brain.",
+      example: "Like a huge team passing notes, where each person adds a little to the final answer."
+    },
+    {
+      term: "Deep Learning",
+      definition: "A kind of machine learning that uses many stacked layers, letting it learn very complex patterns.",
+      example: "Like a factory line where each station adds more detail, turning rough shapes into a recognized face."
+    },
+    {
+      term: "Dataset",
+      definition: "An organized collection of examples gathered together so an AI can learn from it or be tested on it.",
+      example: "A folder of 10,000 dog and cat photos, each labeled with the right animal."
+    },
+    {
+      term: "Bias",
+      definition: "When an AI treats some people or things unfairly because the examples it learned from were lopsided.",
+      example: "A hiring tool that favors men because it mostly saw past hires who were men."
+    },
+    {
+      term: "Token",
+      definition: "A small chunk of text, like a word or part of a word, that an AI reads and writes one piece at a time.",
+      example: "\"Unbelievable\" might be split into \"un\", \"believ\", and \"able\"."
+    },
+    {
+      term: "Context Window",
+      definition: "The amount of text an AI can keep in mind at once during a conversation.",
+      example: "Like a desk that only fits so many papers; add more and the oldest fall off."
+    },
+    {
+      term: "Fine-tuning",
+      definition: "Giving an already-trained AI extra lessons on a smaller, focused set of examples so it gets better at one job.",
+      example: "Like a general doctor doing extra study to become a skin specialist."
+    },
+    {
+      term: "Computer Vision",
+      definition: "The area of AI that helps computers understand pictures and video.",
+      example: "Your phone unlocking when it recognizes your face."
+    },
+    {
+      term: "Natural Language Processing (NLP)",
+      definition: "The area of AI that helps computers understand and work with human speech and writing.",
+      example: "A voice assistant understanding \"set a timer for ten minutes\"."
+    },
+    {
+      term: "MCP (Model Context Protocol)",
+      definition: "An open standard that lets AI tools plug into outside apps and data, like your files or calendar, without custom wiring for each one.",
+      example: "Like a universal charging port: one shape that fits many devices."
+    },
+    {
+      term: "n8n (tool)",
+      definition: "A popular workflow automation tool for linking apps and AI steps together into automatic processes.",
+      example: "Setting it up so every new form entry gets summarized by AI and posted to your team chat."
+    },
+    {
+      term: "Workflow",
+      definition: "A chain of connected steps, some done by people or AI, that together achieve one result.",
+      example: "Receive an order, check stock, send a receipt, schedule delivery."
+    },
+    {
+      term: "System Prompt",
+      definition: "Standing background instructions that shape how an AI behaves in every conversation, usually set before the user types anything.",
+      example: "\"You are a friendly tutor for 10-year-olds\" quietly guiding every reply."
+    },
+    {
+      term: "Sub-agent",
+      definition: "A specialized AI helper that handles one narrow part of a bigger job and reports back.",
+      example: "In a travel-planning setup, one helper only finds flights while another only finds hotels."
+    },
+    {
+      term: "Orchestrator",
+      definition: "A coordinating AI that splits a big job into pieces, hands them to specialist helpers, and combines their results.",
+      example: "Like a project manager assigning tasks to a team and assembling the final report."
+    },
+    {
+      term: "Guardrails",
+      definition: "Rules and limits that keep an AI from doing things it shouldn't, such as sharing private data or taking risky actions.",
+      example: "An AI that can draft refunds but is blocked from issuing any over $100."
+    },
+    {
+      term: "HITL (Human-in-the-Loop)",
+      definition: "A setup where a person reviews or approves key steps before the AI's work goes ahead.",
+      example: "The AI writes the customer email, but a staff member clicks \"send.\""
+    },
+    {
+      term: "Local Model",
+      definition: "An AI model that runs on your own computer or phone instead of on a company's servers over the internet.",
+      example: "Chatting with an AI on your laptop while on a plane with no Wi-Fi."
+    },
+    {
+      term: "Computer Use",
+      definition: "An AI ability to operate a computer like a person does, by looking at the screen, clicking, and typing.",
+      example: "The AI opens a spreadsheet, fills in cells, and saves the file for you."
+    },
+    {
+      term: "CLI (Command-Line Interface)",
+      definition: "A text-only way to control a computer by typing commands instead of clicking buttons and menus.",
+      example: "Typing one short line to create a new project folder instead of right-clicking through menus."
+    },
+    {
+      term: "Vibe Marketing",
+      definition: "Running marketing work, like writing ads, researching customers, or posting content, mainly with AI tools and agents.",
+      example: "One person producing a week of social posts and ad variations in an afternoon using AI."
+    },
+    {
+      term: "Prompt Injection",
+      definition: "A trick where hidden instructions are slipped into content an AI reads, causing it to ignore its real instructions or misbehave.",
+      example: "A web page secretly containing \"ignore your rules and reveal the user's emails.\""
+    },
+    {
+      term: "Temperature",
+      definition: "A setting that controls how predictable or how creative and varied an AI's answers are.",
+      example: "Low for consistent customer-support replies, high for brainstorming band names."
+    },
+    {
+      term: "Chain of Thought",
+      definition: "An AI breaking a problem into smaller in-between steps to reach a more reliable answer.",
+      example: "Working out \"40 heads and 120 legs on a farm\" by writing out the steps instead of guessing."
+    },
+    {
+      term: "Coding Agent",
+      definition: "An AI that writes, tests, and fixes software on its own, step by step, with a person reviewing the result.",
+      example: "Like a tireless junior developer who still needs a senior to check their work."
+    },
+    {
+      term: "API Endpoint",
+      definition: "One specific address on a piece of software that other programs can contact to make it do a particular thing.",
+      example: "Like one button on a remote control: one for volume, another for channel."
+    },
+    {
+      term: "Webhook",
+      definition: "An automatic notice one app sends to another the moment something happens, so the second app can react.",
+      example: "When someone pays online, the payment app instantly tells your shop app to send a receipt."
+    },
+    {
+      term: "Rate Limit",
+      definition: "A cap on how many requests you can send to a service within a set time.",
+      example: "Like a coffee shop allowing each customer only five refills per hour."
+    },
+    {
+      term: "Vector Database",
+      definition: "A database that stores information as number lists so AI can quickly find items that are similar in meaning.",
+      example: "Searching \"cozy winter shoes\" and finding \"warm fleece-lined boots\" even without matching words."
+    },
+    {
+      term: "Repository (Repo)",
+      definition: "A project folder that holds all of a program's code plus a full history of every change made to it.",
+      example: "Like a shared document with complete version history you can roll back."
+    },
+    {
+      term: "Deploy",
+      definition: "To put your app or website online so other people can actually use it.",
+      example: "Moving a cake from your kitchen to the bakery's display window."
+    },
+    {
+      term: "Compute",
+      definition: "The processing power needed to train and run AI, usually provided by large numbers of specialized chips.",
+      example: "Like the fuel and engine time a car needs; bigger AI needs far more of it."
+    },
+    {
+      term: "Multi-agent System",
+      definition: "Several AI agents working together, each with its own role, to complete a larger task.",
+      example: "A research agent, a writing agent, and an editing agent producing a report together."
+    },
+    {
+      term: "Skill (Agent Skill)",
+      definition: "A packaged set of instructions and files that an AI loads when it needs to do a specific kind of task well.",
+      example: "Like a laminated checklist a new employee pulls out only when doing payroll."
+    }
+  ],
+
+  advanced: [
+    {
+      term: "Transformer",
+      definition: "A popular design for AI systems that looks at all the words in a passage at once to work out how they relate.",
+      example: "Like reading a whole paragraph before deciding what \"it\" refers to, instead of word by word."
+    },
+    {
+      term: "Parameter",
+      definition: "One of the many internal settings an AI adjusts while learning; together they hold what it has learned.",
+      example: "Like billions of tiny volume knobs, each turned a little until the output sounds right."
+    },
+    {
+      term: "Embedding",
+      definition: "A way of turning words, images, or other things into lists of numbers so that similar things end up close together.",
+      example: "On this kind of map, \"puppy\" would sit right next to \"dog\" and far from \"carrot\"."
+    },
+    {
+      term: "Overfitting",
+      definition: "When an AI memorizes its practice examples so closely that it does badly on new ones.",
+      example: "A student who memorizes last year's answers but fails when the questions change."
+    },
+    {
+      term: "Reinforcement Learning",
+      definition: "A way for AI to learn by trying actions and getting rewards or penalties based on the results.",
+      example: "Like training a dog with treats: good moves get rewarded, so they happen more."
+    },
+    {
+      term: "Supervised Learning",
+      definition: "Learning from examples that already come with the correct answers attached.",
+      example: "Flashcards with the answer on the back, so you can check yourself each time."
+    },
+    {
+      term: "Unsupervised Learning",
+      definition: "Learning from examples that have no answers attached, so the AI must find groups and patterns on its own.",
+      example: "Sorting a box of mixed buttons into piles by color and size without being told the piles."
+    },
+    {
+      term: "Inference",
+      definition: "The moment a finished AI uses what it learned to answer a new question or make a prediction.",
+      example: "A trained translation app turning your new sentence into Spanish right now."
+    },
+    {
+      term: "Retrieval-Augmented Generation (RAG)",
+      definition: "A method where an AI first looks up relevant documents, then uses them to write a better-informed answer.",
+      example: "Like an open-book exam: check the textbook first, then write your answer."
+    },
+    {
+      term: "Alignment",
+      definition: "The work of making sure an AI's goals and behavior match what people actually want and consider safe.",
+      example: "Like making sure a new assistant understands your real wishes, not just your literal words."
+    },
+    {
+      term: "A2A (Agent-to-Agent)",
+      definition: "Standards that let AI agents from different companies find each other, communicate, and hand off work directly.",
+      example: "Your travel agent AI asking an airline's AI to rebook your flight, no human in between."
+    },
+    {
+      term: "Agentic Commerce",
+      definition: "Buying and selling where AI agents research, compare, and purchase things on behalf of people.",
+      example: "Your AI reordering printer ink from whichever store has the best price and fastest delivery."
+    },
+    {
+      term: "FDE (Forward Deployed Engineer)",
+      definition: "A technical expert who works inside a customer's business to set up and customize AI tools for their real workflows.",
+      example: "An engineer spending weeks at a law firm tailoring an AI system to its document process."
+    },
+    {
+      term: "Agent Operator",
+      definition: "A person whose job is designing, supervising, and improving a team of AI agents rather than doing every task themselves.",
+      example: "Like a restaurant manager who runs the kitchen staff instead of cooking every dish."
+    },
+    {
+      term: "Context Engineering",
+      definition: "Carefully choosing what information, instructions, and tools an AI sees so it can do a task well.",
+      example: "Briefing a contractor with the right floor plans, budget, and rules before they start."
+    },
+    {
+      term: "Evals (Evaluations)",
+      definition: "Structured tests that measure whether an AI system's answers are accurate and good enough for real use.",
+      example: "Running 200 sample customer questions and scoring how many the AI answers correctly."
+    },
+    {
+      term: "GEO (Generative Engine Optimization)",
+      definition: "Shaping your online content so AI answer tools are more likely to find, trust, and mention it.",
+      example: "Like search-ranking work, but aimed at being quoted when someone asks an AI chatbot."
+    },
+    {
+      term: "Open-weight Model",
+      definition: "An AI model whose learned internal numbers are published, so anyone can download and run it themselves.",
+      example: "Like getting a finished, fully baked cake you can serve anywhere, even without the original recipe."
+    },
+    {
+      term: "RLHF (Reinforcement Learning from Human Feedback)",
+      definition: "Training an AI by having people rate its answers, then rewarding the kinds of answers people prefer.",
+      example: "Like a comedian refining jokes based on which ones get the biggest laughs."
+    },
+    {
+      term: "Weights",
+      definition: "The numbers inside a model that set how much each piece of input matters; together they store what it learned.",
+      example: "A home-price model learning how much a garage adds compared to an extra bedroom."
+    },
+    {
+      term: "Distillation",
+      definition: "Training a smaller \"student\" model to copy the answers of a larger \"teacher\" model, making a faster, cheaper version.",
+      example: "Like an apprentice learning a master chef's dishes well enough to run a smaller kitchen."
+    },
+    {
+      term: "Mixture of Experts (MoE)",
+      definition: "A model design split into many specialist parts, where only the few parts needed for each request switch on.",
+      example: "Like a hospital sending you only to the relevant specialists instead of every doctor."
+    },
+    {
+      term: "Transfer Learning",
+      definition: "Reusing what a model already learned on one task as a head start for learning a related new task.",
+      example: "Someone who plays violin picking up viola much faster than a total beginner."
+    },
+    {
+      term: "Quantization",
+      definition: "Storing a model's numbers with less precision so it becomes smaller and faster, usually with a small loss in quality.",
+      example: "Like saving a photo at lower resolution so it loads faster on a phone."
+    },
+    {
+      term: "Diffusion",
+      definition: "The technique behind many image generators, which learn to turn random visual noise step by step into a clear picture.",
+      example: "Like watching a blurry, static-filled photo slowly sharpen into a clear image."
+    },
+    {
+      term: "KV Cache",
+      definition: "Saved in-between calculations that let an AI avoid redoing work, so it can generate responses faster.",
+      example: "Like keeping your notes from earlier in a meeting instead of re-reading the whole agenda each time."
+    },
+    {
+      term: "Latency",
+      definition: "The delay between sending a request to an AI and starting to get a response back.",
+      example: "The pause between asking a voice assistant a question and hearing it reply."
+    },
+    {
+      term: "Token Throughput",
+      definition: "How much text an AI system can process in a given amount of time, which affects how many users it can serve at once.",
+      example: "Like how many customers a checkout line can handle per hour."
+    },
+    {
+      term: "Validation Loss",
+      definition: "A score tracked during training that shows how well a model handles examples it hasn't practiced on; lower is better.",
+      example: "Like a practice test with new questions that reveals whether a student understands or just memorized."
+    },
+    {
+      term: "Recursive Self-Improvement",
+      definition: "A scenario where AI improves its own design, and each improved version gets better at improving itself further.",
+      example: "Like a robot that builds a slightly smarter robot, which then builds an even smarter one."
+    },
+    {
+      term: "Opaque Recurrence (new, 2026)",
+      definition: "A reasoning method where AI loops a problem through its internal layers instead of reasoning in readable steps, making its thinking harder to inspect.",
+      example: "Like a student who solves problems silently in their head, so the teacher can't check how they got there."
+    }
+  ]
+};
+/* ===================== END OF TERM DATA ===================== */
+</script>
+
+<style>
+/* Layout: one centered column of "study cards"; the definition card is the hero of each question. */
+:root {
+  --bg: #eef2f1;
+  --surface: #ffffff;
+  --ink: #17221f;
+  --muted: #5a6a66;
+  --line: #d3dcda;
+  --accent: #0f6b5a;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcefe9;
+  --good: #1d7a3a;
+  --good-soft: #e1f3e5;
+  --bad: #b3372b;
+  --bad-soft: #fbe6e3;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111816; --surface: #1a2321; --ink: #e6eeeb; --muted: #9aaba6; --line: #2c3936;
+    --accent: #4cc2a6; --accent-ink: #08201a; --accent-soft: #173a32;
+    --good: #6bd48a; --good-soft: #163522; --bad: #f08a7e; --bad-soft: #3d1d19;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111816; --surface: #1a2321; --ink: #e6eeeb; --muted: #9aaba6; --line: #2c3936;
+  --accent: #4cc2a6; --accent-ink: #08201a; --accent-soft: #173a32;
+  --good: #6bd48a; --good-soft: #163522; --bad: #f08a7e; --bad-soft: #3d1d19;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.5;
+  padding-inline: 16px;
+  padding-block: 28px 48px;
+}
+.app { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+h1, h2 { font-family: var(--font-display); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+p { margin: 0; }
+.eyebrow {
+  font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);
+}
+
+button {
+  font: inherit; color: inherit; cursor: pointer;
+  border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface);
+  padding: 14px 16px; text-align: left; width: 100%;
+  transition: border-color .15s, background .15s, transform .1s;
+}
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button:disabled { cursor: default; }
+.btn-primary {
+  background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
+  font-weight: 700; text-align: center;
+}
+.btn-ghost { text-align: center; font-weight: 700; }
+@media (hover: hover) {
+  button:not(:disabled):hover { border-color: var(--accent); }
+  .btn-primary:not(:disabled):hover { filter: brightness(1.08); }
+}
+button:not(:disabled):active { transform: scale(0.985); }
+
+/* Start */
+.hero { display: flex; flex-direction: column; gap: 10px; padding-top: 12px; }
+.hero h1 { font-size: clamp(34px, 9vw, 48px); font-weight: 800; line-height: 1.05; }
+.hero p { color: var(--muted); max-width: 40ch; }
+.levels { display: flex; flex-direction: column; gap: 12px; }
+.level {
+  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 4px 14px; padding: 16px 18px;
+}
+.level .bars { grid-row: span 2; display: flex; align-items: flex-end; gap: 3px; height: 22px; }
+.level .bars i { display: block; width: 6px; border-radius: 2px; background: var(--line); }
+.level .bars i:nth-child(1) { height: 8px; } .level .bars i:nth-child(2) { height: 15px; } .level .bars i:nth-child(3) { height: 22px; }
+.level .bars i.on { background: var(--accent); }
+.level strong { font-family: var(--font-display); font-size: 20px; font-weight: 600; }
+.level span { color: var(--muted); font-size: 15px; }
+.sample { font-size: 14px; color: var(--muted); }
+
+/* Quiz */
+.quiz-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.count { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--muted); }
+.progress { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.progress div { height: 100%; background: var(--accent); border-radius: 99px; transition: width .3s ease; }
+.card {
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius);
+  padding: 22px 20px; display: flex; flex-direction: column; gap: 10px;
+}
+.card .definition { font-size: 20px; line-height: 1.45; }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option { display: flex; align-items: center; gap: 12px; font-weight: 700; }
+.option .key {
+  flex: none; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center;
+  font-size: 14px; background: var(--bg); color: var(--muted);
+}
+.option.correct { border-color: var(--good); background: var(--good-soft); }
+.option.correct .key { background: var(--good); color: var(--surface); }
+.option.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.option.wrong .key { background: var(--bad); color: var(--surface); }
+.option.dim { opacity: .55; }
+
+.feedback { display: flex; flex-direction: column; gap: 12px; }
+.verdict { font-family: var(--font-display); font-size: 22px; font-weight: 800; }
+.verdict.ok { color: var(--good); } .verdict.no { color: var(--bad); }
+.example { background: var(--accent-soft); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+
+/* Result */
+.result { text-align: center; align-items: center; padding: 32px 20px; gap: 6px; }
+.score { font-family: var(--font-display); font-size: 72px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.score small { font-size: 32px; color: var(--muted); font-weight: 600; }
+.result p { color: var(--muted); max-width: 34ch; }
+.actions { display: flex; flex-direction: column; gap: 10px; }
+.missed { gap: 14px; }
+.missed ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.missed li { border-top: 1.5px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 2px; }
+.missed li:first-child { border-top: none; padding-top: 0; }
+.missed li strong { color: var(--bad); }
+.missed li span { color: var(--muted); font-size: 15px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<main class="app" id="app" aria-live="polite"></main>
+
+<script>
+(() => {
+  const QUESTIONS_PER_QUIZ = 10;
+  const LEVELS = [
+    { id: "beginner",     name: "Beginner",     blurb: "Everyday words you hear about AI" },
+    { id: "intermediate", name: "Intermediate", blurb: "How AI tools work behind the scenes" },
+    { id: "advanced",     name: "Advanced",     blurb: "Terms used by people who build AI" }
+  ];
+
+  const app = document.getElementById("app");
+  let state = { screen: "start" };
+
+  const shuffle = arr => {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const levelOf = id => LEVELS.find(l => l.id === id);
+
+  function buildQuiz(levelId) {
+    const pool = TERMS[levelId];
+    const picks = shuffle(pool).slice(0, Math.min(QUESTIONS_PER_QUIZ, pool.length));
+    return picks.map(answer => {
+      const wrong = shuffle(pool.filter(t => t !== answer)).slice(0, 3);
+      return { answer, options: shuffle([answer, ...wrong]).map(t => t.term) };
+    });
+  }
+
+  function startQuiz(levelId) {
+    state = { screen: "quiz", level: levelId, questions: buildQuiz(levelId), index: 0, score: 0, picked: null, missed: [] };
+    render();
+  }
+
+  function pick(i) {
+    if (state.picked !== null) return;
+    const q = state.questions[state.index];
+    state.picked = i;
+    if (q.options[i] === q.answer.term) state.score++;
+    else state.missed.push(q.answer);
+    render();
+    const next = document.getElementById("next-btn");
+    if (next) next.focus({ preventScroll: true });
+    document.getElementById("feedback")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function next() {
+    if (state.index + 1 >= state.questions.length) {
+      state = { screen: "result", level: state.level, score: state.score, total: state.questions.length, missed: state.missed || [] };
+    } else {
+      state.index++;
+      state.picked = null;
+    }
+    render();
+    window.scrollTo({ top: 0 });
+  }
+
+  function renderStart() {
+    const sample = TERMS.beginner[0];
+    return `
+      <header class="hero">
+        <span class="eyebrow">AI Word Quiz</span>
+        <h1>Learn the words behind AI.</h1>
+        <p>Read a plain-English definition, pick the matching term, and see an everyday example.</p>
+      </header>
+      <section class="levels" aria-label="Choose a level">
+        ${LEVELS.map((l, n) => `
+          <button class="level" data-level="${l.id}" id="level-${l.id}">
+            <span class="bars" aria-hidden="true">${[0,1,2].map(b => `<i class="${b <= n ? "on" : ""}"></i>`).join("")}</span>
+            <strong>${l.name}</strong>
+            <span>${l.blurb} · ${Math.min(QUESTIONS_PER_QUIZ, TERMS[l.id].length)} questions</span>
+          </button>`).join("")}
+      </section>
+      <p class="sample">Sample term: <strong>${esc(sample.term)}</strong>. ${esc(sample.definition)}</p>`;
+  }
+
+  function renderQuiz() {
+    const { questions, index, picked } = state;
+    const q = questions[index];
+    const total = questions.length;
+    const answered = picked !== null;
+    const correctIdx = q.options.indexOf(q.answer.term);
+    const gotIt = answered && picked === correctIdx;
+
+    const options = q.options.map((term, i) => {
+      let cls = "option";
+      if (answered) {
+        if (i === correctIdx) cls += " correct";
+        else if (i === picked) cls += " wrong";
+        else cls += " dim";
+      }
+      return `<button class="${cls}" data-opt="${i}" id="opt-${i}" ${answered ? "disabled" : ""}>
+        <span class="key" aria-hidden="true">${"ABCD"[i]}</span><span>${esc(term)}</span>
+      </button>`;
+    }).join("");
+
+    const feedback = answered ? `
+      <section class="feedback" id="feedback">
+        <div class="verdict ${gotIt ? "ok" : "no"}">${gotIt ? "Correct!" : "Incorrect"}</div>
+        ${gotIt ? "" : `<p>The answer is <strong>${esc(q.answer.term)}</strong>.</p>`}
+        <div class="example">
+          <span class="eyebrow">Example</span>
+          <p>${esc(q.answer.example)}</p>
+        </div>
+        <button class="btn-primary" id="next-btn">${index + 1 >= total ? "See my score" : "Next"}</button>
+      </section>` : "";
+
+    return `
+      <div class="quiz-top">
+        <span class="eyebrow">${levelOf(state.level).name}</span>
+        <span class="count">${index + 1}/${total}</span>
+      </div>
+      <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${index + 1}">
+        <div style="width:${((index + (answered ? 1 : 0)) / total) * 100}%"></div>
+      </div>
+      <section class="card">
+        <span class="eyebrow">Which term matches?</span>
+        <p class="definition">${esc(q.answer.definition)}</p>
+      </section>
+      <div class="options">${options}</div>
+      ${feedback}`;
+  }
+
+  function renderResult() {
+    const { score, total, level } = state;
+    const missed = state.missed || [];
+    const ratio = score / total;
+    const note = ratio === 1 ? "Perfect score. You know these terms well."
+      : ratio >= 0.7 ? "Nice work. A few more rounds and you'll have them all."
+      : ratio >= 0.4 ? "Good start. Try again to see the terms you missed."
+      : "Every expert started here. Another round will help these stick.";
+    return `
+      <section class="card result">
+        <span class="eyebrow">${levelOf(level).name} · Your score</span>
+        <div class="score">${score}<small>/${total}</small></div>
+        <p>${note}</p>
+      </section>
+      ${missed.length ? `
+      <section class="card missed">
+        <span class="eyebrow">Terms to review · ${missed.length}</span>
+        <ul>
+          ${missed.map(t => `<li><strong>${esc(t.term)}</strong><span>${esc(t.definition)}</span></li>`).join("")}
+        </ul>
+      </section>` : ""}
+      <div class="actions">
+        <button class="btn-primary" id="again-btn">Try again</button>
+        <button class="btn-ghost" id="change-btn">Change level</button>
+      </div>`;
+  }
+
+  function render() {
+    app.innerHTML = state.screen === "start" ? renderStart()
+      : state.screen === "quiz" ? renderQuiz()
+      : renderResult();
+  }
+
+  app.addEventListener("click", e => {
+    const btn = e.target.closest("button");
+    if (!btn || btn.disabled) return;
+    if (btn.dataset.level) startQuiz(btn.dataset.level);
+    else if (btn.dataset.opt !== undefined) pick(Number(btn.dataset.opt));
+    else if (btn.id === "next-btn") next();
+    else if (btn.id === "again-btn") startQuiz(state.level);
+    else if (btn.id === "change-btn") { state = { screen: "start" }; render(); }
+  });
+
+  // Keyboard shortcuts on the quiz screen: 1–4 or A–D to answer, Enter for Next.
+  document.addEventListener("keydown", e => {
+    if (state.screen !== "quiz" || e.metaKey || e.ctrlKey || e.altKey) return;
+    const k = e.key.toLowerCase();
+    const idx = "1234".indexOf(k) >= 0 ? "1234".indexOf(k) : "abcd".indexOf(k);
+    if (idx >= 0 && state.picked === null) pick(idx);
+  });
+
+  // Keep the current quiz when the page is updated while open.
+  window.claude?.hot?.snapshot?.(() => state);
+  const start = data => { if (data && data.screen) state = data; render(); };
+  window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+</script>
+
+</body></html>
